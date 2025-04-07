@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Status{% endblock %}
+
+{% block head %}
+{% if job.status != 'Completed' and job.status != 'Failed' %}
+<meta http-equiv="refresh" content="5">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Analysis Status</h2>
+            </div>
+            <div class="card-body">
+                <h4>Job #{{ job_id }}</h4>
+                <p><strong>URL:</strong> <a href="{{ job.url }}" target="_blank">{{ job.url }}</a></p>
+                <p><strong>Model:</strong> {{ job.model }}</p>
+                
+                <div class="mt-4">
+                    <h5>Status: {{ job.status }}</h5>
+                    
+                    {% if job.status == 'Completed' %}
+                        <div class="alert alert-success mt-3">
+                            <h5>Analysis Complete!</h5>
+                            <p><strong>Video:</strong> {{ job.result.video_title }}</p>
+                            <div class="mt-3">
+                                <a href="{{ url_for('download_file', filename=job.result.transcript_file) }}" class="btn btn-outline-primary">
+                                    Download Transcript
+                                </a>
+                                <a href="{{ url_for('download_file', filename=job.result.analysis_file) }}" class="btn btn-primary">
+                                    View Analysis
+                                </a>
+                            </div>
+                        </div>
+                    {% elif job.status == 'Failed' %}
+                        <div class="alert alert-danger mt-3">
+                            <h5>Analysis Failed</h5>
+                            <p>Error: {{ job.error }}</p>
+                        </div>
+                    {% else %}
+                        <div class="progress mt-3">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: 100%" 
+                                 aria-valuenow="100" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        <p class="text-center mt-2">
+                            This page will refresh automatically every 5 seconds.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Home</a>
+            <a href="{{ url_for('history') }}" class="btn btn-outline-primary">View All Jobs</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

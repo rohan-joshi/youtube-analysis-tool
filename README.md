@@ -33,6 +33,8 @@ A Python tool that downloads, transcribes, and analyzes YouTube videos to extrac
 
 ## Usage
 
+### Command Line Interface
+
 Basic usage:
 ```
 python youtube_analysis.py [YouTube URL] --output-dir [DIR] --model [MODEL]
@@ -46,6 +48,27 @@ python youtube_analysis.py https://www.youtube.com/watch?v=EXAMPLE --model claud
 # Using OpenAI
 python youtube_analysis.py https://www.youtube.com/watch?v=EXAMPLE --model gpt-4
 ```
+
+### Web Interface
+
+The tool also offers a user-friendly web interface:
+
+1. Start the web server:
+   ```
+   python app.py
+   ```
+
+2. Open your browser and navigate to:
+   ```
+   http://localhost:5000
+   ```
+
+3. Enter a YouTube URL, select a model, and click "Analyze"
+
+The web interface provides:
+- Real-time status tracking of analysis jobs
+- History of previous analyses
+- Easy access to transcripts and analysis results
 
 ## Customizing Analysis
 

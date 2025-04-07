@@ -5,3 +5,5 @@ anthropic
 numpy
 torch
 tqdm
+flask
+flask-wtf

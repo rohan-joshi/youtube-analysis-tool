@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}YouTube Analysis Tool - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Analyze YouTube Content</h2>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Enter a YouTube URL below to download, transcribe, and analyze the content.
+                    The tool will extract key insights and investment opportunities mentioned in the video.
+                </p>
+                
+                <form method="POST" action="{{ url_for('index') }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.url.label(class="form-label") }}
+                        {{ form.url(class="form-control", placeholder="https://www.youtube.com/watch?v=...") }}
+                        {% if form.url.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.url.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.model.label(class="form-label") }}
+                        {{ form.model(class="form-select") }}
+                    </div>
+
+                    <div class="text-center">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3 class="card-title">How It Works</h3>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li><strong>Download</strong> - We download the audio from the YouTube video.</li>
+                    <li><strong>Transcribe</strong> - The audio is transcribed using OpenAI's Whisper model.</li>
+                    <li><strong>Analyze</strong> - The transcript is analyzed using a powerful language model to extract insights.</li>
+                    <li><strong>Results</strong> - You'll receive a detailed analysis with investment opportunities and risks.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3 class="card-title">Customize Analysis</h3>
+            </div>
+            <div class="card-body">
+                <p>
+                    You can customize the analysis by modifying the prompt template in your own fork of this project.
+                    Check out the <a href="https://github.com/rohan-joshi/youtube-analysis-tool" target="_blank">GitHub repository</a>
+                    for instructions on how to modify the analysis parameters.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
