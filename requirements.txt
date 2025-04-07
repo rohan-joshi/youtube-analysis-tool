@@ -1,0 +1,7 @@
+pytube
+openai-whisper
+openai
+anthropic
+numpy
+torch
+tqdm
