@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis: {{ title }}{% endblock %}
+
+{% block head %}
+<style>
+    .analysis-content {
+        font-family: 'Noto Sans', sans-serif;
+        line-height: 1.6;
+    }
+    .analysis-content h1, 
+    .analysis-content h2, 
+    .analysis-content h3, 
+    .analysis-content h4 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    .analysis-content h1 { font-size: 2rem; }
+    .analysis-content h2 { font-size: 1.75rem; }
+    .analysis-content h3 { font-size: 1.5rem; }
+    .analysis-content h4 { font-size: 1.25rem; }
+    .analysis-content p {
+        margin-bottom: 1rem;
+    }
+    .analysis-content ul, 
+    .analysis-content ol {
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+    }
+    .analysis-content pre {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+        overflow-x: auto;
+    }
+    .analysis-content code {
+        background-color: #f1f1f1;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.875em;
+    }
+    .analysis-content blockquote {
+        border-left: 4px solid #ced4da;
+        padding-left: 1rem;
+        margin-left: 0;
+        color: #6c757d;
+    }
+    .analysis-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+    .analysis-content table th,
+    .analysis-content table td {
+        padding: 0.5rem;
+        border: 1px solid #dee2e6;
+    }
+    .analysis-content table th {
+        background-color: #f8f9fa;
+    }
+    .transcript-content {
+        font-family: 'Noto Sans', sans-serif;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        overflow-x: auto;
+        max-height: 800px;
+        overflow-y: auto;
+    }
+    .tab-content {
+        padding-top: 1rem;
+    }
+    .content-panel {
+        max-height: 800px;
+        overflow-y: auto;
+    }
+    .split-view-container {
+        display: none;
+    }
+    @media (min-width: 992px) {
+        .split-view-container {
+            display: flex;
+        }
+        .tabbed-view-container {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="card-title mb-0">{{ title }}</h2>
+                <div>
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-left"></i> Back to History
+                    </a>
+                    <button id="toggleViewBtn" class="btn btn-outline-primary btn-sm ms-2">
+                        <i class="bi bi-layout-split"></i> Toggle View
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Tabbed view (for mobile) -->
+                <div class="tabbed-view-container">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis" type="button" role="tab" aria-controls="analysis" aria-selected="true">Analysis</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="transcript-tab" data-bs-toggle="tab" data-bs-target="#transcript" type="button" role="tab" aria-controls="transcript" aria-selected="false">Transcript</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
+                            <div class="analysis-content content-panel">
+                                {{ html_content|safe }}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="transcript" role="tabpanel" aria-labelledby="transcript-tab">
+                            <div class="transcript-content content-panel">
+                                {{ transcript_content }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Split view (for desktop) -->
+                <div class="split-view-container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Transcript</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="transcript-content">
+                                        {{ transcript_content }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Analysis</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="analysis-content content-panel">
+                                        {{ html_content|safe }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <small>Model: {{ job.model }}</small>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('download_file', filename=job.result.analysis_file) }}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-download"></i> Download Analysis
+                        </a>
+                        <a href="{{ url_for('download_file', filename=job.result.transcript_file) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-download"></i> Download Transcript
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleViewBtn = document.getElementById('toggleViewBtn');
+        const tabbedViewContainer = document.querySelector('.tabbed-view-container');
+        const splitViewContainer = document.querySelector('.split-view-container');
+        
+        toggleViewBtn.addEventListener('click', function() {
+            if (splitViewContainer.style.display === 'none' || splitViewContainer.style.display === '') {
+                splitViewContainer.style.display = 'block';
+                tabbedViewContainer.style.display = 'none';
+                toggleViewBtn.innerHTML = '<i class="bi bi-layout-split"></i> Show Tabs';
+            } else {
+                splitViewContainer.style.display = 'none';
+                tabbedViewContainer.style.display = 'block';
+                toggleViewBtn.innerHTML = '<i class="bi bi-layout-split"></i> Show Split';
+            }
+        });
+    });
+</script>
+{% endblock %}

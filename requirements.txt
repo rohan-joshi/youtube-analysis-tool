@@ -7,3 +7,6 @@ torch
 tqdm
 flask
 flask-wtf
+flask-sqlalchemy
+markdown2
+anthropic>=0.18.0

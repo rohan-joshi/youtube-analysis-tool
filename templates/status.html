@@ -27,12 +27,24 @@
                         <div class="alert alert-success mt-3">
                             <h5>Analysis Complete!</h5>
                             <p><strong>Video:</strong> {{ job.result.video_title }}</p>
+                            
                             <div class="mt-3">
-                                <a href="{{ url_for('download_file', filename=job.result.transcript_file) }}" class="btn btn-outline-primary">
-                                    Download Transcript
+                                <h6>View Results:</h6>
+                                <a href="{{ url_for('view_analysis', job_id=job_id) }}" class="btn btn-primary">
+                                    <i class="bi bi-eye"></i> View Analysis
                                 </a>
-                                <a href="{{ url_for('download_file', filename=job.result.analysis_file) }}" class="btn btn-primary">
-                                    View Analysis
+                                <a href="{{ url_for('view_file', filename=job.result.transcript_file) }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-file-text"></i> View Transcript
+                                </a>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <h6>Download Results:</h6>
+                                <a href="{{ url_for('download_file', filename=job.result.analysis_file) }}" class="btn btn-outline-primary">
+                                    <i class="bi bi-download"></i> Download Analysis
+                                </a>
+                                <a href="{{ url_for('download_file', filename=job.result.transcript_file) }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-download"></i> Download Transcript
                                 </a>
                             </div>
                         </div>
@@ -54,10 +66,43 @@
                         <p class="text-center mt-2">
                             This page will refresh automatically every 5 seconds.
                         </p>
+                        
+                        {% if job.status == 'Analyzing transcript...' %}
+                            <div class="alert alert-info mt-3">
+                                <h5>Analysis in Progress</h5>
+                                <p>The transcript is being analyzed using {{ job.model }}. This may take a few minutes depending on the length of the video.</p>
+                            </div>
+                        {% elif job.status == 'Transcribing audio...' %}
+                            <div class="alert alert-info mt-3">
+                                <h5>Transcription in Progress</h5>
+                                <p>The audio is being transcribed using Whisper. This may take a few minutes depending on the length of the video.</p>
+                            </div>
+                        {% elif job.status == 'Downloading audio...' %}
+                            <div class="alert alert-info mt-3">
+                                <h5>Download in Progress</h5>
+                                <p>The audio is being downloaded from YouTube. This should only take a moment.</p>
+                            </div>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
         </div>
+
+        {% if job.custom_prompt or job.prompt_id %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title">Analysis Options</h5>
+                </div>
+                <div class="card-body">
+                    {% if job.prompt_id and job.prompt_id > 0 %}
+                        <p><strong>Prompt Template:</strong> Using template #{{ job.prompt_id }}</p>
+                    {% elif job.custom_prompt %}
+                        <p><strong>Custom Prompt:</strong></p>
+                        <pre class="bg-light p-2 mt-2 rounded"><code>{{ job.custom_prompt }}</code></pre>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
 
         <div class="mt-3">
             <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Home</a>

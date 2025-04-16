@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block head %}
+<style>
+    .analysis-content {
+        font-family: 'Noto Sans', sans-serif;
+        line-height: 1.6;
+    }
+    .analysis-content h1, 
+    .analysis-content h2, 
+    .analysis-content h3, 
+    .analysis-content h4 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    .analysis-content h1 { font-size: 2rem; }
+    .analysis-content h2 { font-size: 1.75rem; }
+    .analysis-content h3 { font-size: 1.5rem; }
+    .analysis-content h4 { font-size: 1.25rem; }
+    .analysis-content p {
+        margin-bottom: 1rem;
+    }
+    .analysis-content ul, 
+    .analysis-content ol {
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+    }
+    .analysis-content pre {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+        overflow-x: auto;
+    }
+    .analysis-content code {
+        background-color: #f1f1f1;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.875em;
+    }
+    .analysis-content blockquote {
+        border-left: 4px solid #ced4da;
+        padding-left: 1rem;
+        margin-left: 0;
+        color: #6c757d;
+    }
+    .analysis-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+    .analysis-content table th,
+    .analysis-content table td {
+        padding: 0.5rem;
+        border: 1px solid #dee2e6;
+    }
+    .analysis-content table th {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="card-title mb-0">Analysis Results</h2>
+                <a href="{{ url_for('history') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Back to History
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="analysis-content">
+                    {{ html_content|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

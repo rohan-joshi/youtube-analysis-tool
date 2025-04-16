@@ -24,6 +24,9 @@ def parse_arguments():
     parser.add_argument(
         '--model', type=str, default='claude-3-7-sonnet-20250219',
         help='LLM model to use for analysis')
+    parser.add_argument(
+        '--custom-prompt', type=str, 
+        help='Custom prompt template file path')
     return parser.parse_args()
 
 
@@ -121,25 +124,43 @@ def transcribe_audio(audio_file):
     return transcript
 
 
-def analyze_with_llm(transcript, video_title, model):
-    """Analyze transcript using an LLM."""
+def analyze_with_llm(transcript, video_title, model, custom_prompt=None):
+    """Analyze transcript using an LLM.
+    
+    Args:
+        transcript: The transcript text to analyze
+        video_title: The title of the video
+        model: The LLM model to use
+        custom_prompt: Optional custom prompt template to use instead of the default
+    """
     print(f"Analyzing transcript with {model}...")
 
-    # Prompt for the LLM
-    prompt = f"""
+    # Default prompt template if no custom prompt is provided
+    default_prompt = f"""
     The following is a transcript from a YouTube video titled "{video_title}".
 
     Transcript:
     {transcript}
 
     Please provide:
-    1. A detailed summary of the main ideas with emphasis on explaining the macroeconomic behavior. I understand a lot of economic fundamentals but there are holes in my knowledge so I need some educating on how everything fits together. Explain like i'm 10y/o.
+    1. A detailed summary of the main ideas with emphasis on explaining the macroeconomic behavior. I understand a lot of economic fundamentals but there are holes in my knowledge so I need some educating on how everything fits together with a lot of detail, you are a macro expert. I want sentences and paragraphs, no bullet points in your explanation.
     2. Specific investment trades or opportunities suggested or implied
-    3. Potential risks, downsides, and tradeoffs for each suggested trade
-    4. Any limitations or biases in the analysis presented in the video
+    3. Given your understanding, you should also suggest trades with a high probability of success (with tickers).
+    4. Potential risks, downsides, and tradeoffs for each suggested trade
+    5. Any limitations or biases in the analysis presented in the video
 
     Format your response in clear sections with headings.
     """
+
+    # Use custom prompt if provided, otherwise use default
+    if custom_prompt:
+        # Format custom prompt with video title and transcript
+        prompt = custom_prompt.format(
+            video_title=video_title, 
+            transcript=transcript
+        )
+    else:
+        prompt = default_prompt
 
     # Send request to the LLM
     if "claude" in model.lower():
@@ -229,8 +250,19 @@ def main():
     # Transcribe audio
     transcript = transcribe_audio(audio_file)
 
+    # Load custom prompt if provided
+    custom_prompt = None
+    if args.custom_prompt:
+        try:
+            with open(args.custom_prompt, 'r') as f:
+                custom_prompt = f.read()
+            print(f"Using custom prompt from: {args.custom_prompt}")
+        except Exception as e:
+            print(f"Error loading custom prompt: {str(e)}")
+            print("Falling back to default prompt")
+
     # Analyze transcript
-    analysis = analyze_with_llm(transcript, video_title, args.model)
+    analysis = analyze_with_llm(transcript, video_title, args.model, custom_prompt)
 
     # Save outputs
     transcript_file, analysis_file = save_outputs(

@@ -2,9 +2,25 @@
 
 {% block title %}YouTube Analysis Tool - Home{% endblock %}
 
+{% block head %}
+<style>
+    #customPromptSection {
+        display: none;
+    }
+    .prompt-options {
+        margin-bottom: 15px;
+    }
+    .prompt-info {
+        cursor: pointer;
+        color: #0d6efd;
+        font-size: 0.9em;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-md-10">
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Analyze YouTube Content</h2>
@@ -34,8 +50,52 @@
                         {{ form.model(class="form-select") }}
                     </div>
 
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Analysis Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="prompt-options">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="promptType" id="defaultPrompt" value="default" checked>
+                                    <label class="form-check-label" for="defaultPrompt">
+                                        Use Default Analysis Prompt
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="promptType" id="templatePrompt" value="template">
+                                    <label class="form-check-label" for="templatePrompt">
+                                        Select Prompt Template
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="promptType" id="customPrompt" value="custom">
+                                    <label class="form-check-label" for="customPrompt">
+                                        Write Custom Prompt
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="templateSection" class="mb-3" style="display: none;">
+                                {{ form.prompt_template.label(class="form-label") }}
+                                {{ form.prompt_template(class="form-select") }}
+                                <div class="form-text mt-1">
+                                    <a href="{{ url_for('prompts') }}" target="_blank">View all available templates</a>
+                                </div>
+                            </div>
+
+                            <div id="customPromptSection" class="mb-3">
+                                {{ form.custom_prompt.label(class="form-label") }}
+                                {{ form.custom_prompt(class="form-control") }}
+                                <div class="form-text">
+                                    Use <code>{video_title}</code> and <code>{transcript}</code> as placeholders in your custom prompt.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="text-center">
-                        {{ form.submit(class="btn btn-primary") }}
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
                     </div>
                 </form>
             </div>
@@ -57,16 +117,56 @@
 
         <div class="card mt-4">
             <div class="card-header">
-                <h3 class="card-title">Customize Analysis</h3>
+                <h3 class="card-title">Recent Analyses</h3>
             </div>
             <div class="card-body">
                 <p>
-                    You can customize the analysis by modifying the prompt template in your own fork of this project.
-                    Check out the <a href="https://github.com/rohan-joshi/youtube-analysis-tool" target="_blank">GitHub repository</a>
-                    for instructions on how to modify the analysis parameters.
+                    View your <a href="{{ url_for('history') }}">analysis history</a> to see previously analyzed videos.
                 </p>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle prompt type radio buttons
+        const radios = document.querySelectorAll('input[name="promptType"]');
+        const templateSection = document.getElementById('templateSection');
+        const customPromptSection = document.getElementById('customPromptSection');
+        
+        // Function to update sections visibility
+        function updateSections() {
+            const selectedValue = document.querySelector('input[name="promptType"]:checked').value;
+            
+            if (selectedValue === 'template') {
+                templateSection.style.display = 'block';
+                customPromptSection.style.display = 'none';
+                document.getElementById('prompt_template').setAttribute('required', 'required');
+                document.getElementById('custom_prompt').removeAttribute('required');
+            } else if (selectedValue === 'custom') {
+                templateSection.style.display = 'none';
+                customPromptSection.style.display = 'block';
+                document.getElementById('custom_prompt').setAttribute('required', 'required');
+                document.getElementById('prompt_template').removeAttribute('required');
+            } else {
+                // Default
+                templateSection.style.display = 'none';
+                customPromptSection.style.display = 'none';
+                document.getElementById('prompt_template').removeAttribute('required');
+                document.getElementById('custom_prompt').removeAttribute('required');
+            }
+        }
+        
+        // Add event listeners to radio buttons
+        radios.forEach(radio => {
+            radio.addEventListener('change', updateSections);
+        });
+        
+        // Initial setup
+        updateSections();
+    });
+</script>
 {% endblock %}

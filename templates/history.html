@@ -6,8 +6,11 @@
 <div class="row justify-content-center">
     <div class="col-md-10">
         <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Analysis History</h2>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="card-title mb-0">Analysis History</h2>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> New Analysis
+                </a>
             </div>
             <div class="card-body">
                 {% if jobs %}
@@ -19,11 +22,11 @@
                                     <th>Video</th>
                                     <th>Model</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
+                                    <th style="width: 230px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for job_id, job in jobs.items() %}
+                                {% for job_id, job in jobs.items()|sort(reverse=true) %}
                                     <tr>
                                         <td>{{ job_id }}</td>
                                         <td>
@@ -35,27 +38,56 @@
                                                 {% endif %}
                                             </a>
                                         </td>
-                                        <td>{{ job.model }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ job.model.split('-')[0] }}</span>
+                                        </td>
                                         <td>
                                             {% if job.status == 'Completed' %}
                                                 <span class="badge bg-success">Completed</span>
                                             {% elif job.status == 'Failed' %}
                                                 <span class="badge bg-danger">Failed</span>
+                                                <small class="d-block text-danger mt-1">
+                                                    {% if job.error %}
+                                                        {{ job.error|truncate(30) }}
+                                                    {% endif %}
+                                                </small>
                                             {% else %}
                                                 <span class="badge bg-warning text-dark">{{ job.status }}</span>
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <a href="{{ url_for('status', job_id=job_id) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                            
-                                            {% if job.status == 'Completed' %}
-                                                <a href="{{ url_for('download_file', filename=job.result.analysis_file) }}" class="btn btn-sm btn-primary">
-                                                    Analysis
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('status', job_id=job_id) }}" class="btn btn-sm btn-outline-primary" title="View Job Details">
+                                                    <i class="bi bi-info-circle"></i>
                                                 </a>
-                                                <a href="{{ url_for('download_file', filename=job.result.transcript_file) }}" class="btn btn-sm btn-outline-secondary">
-                                                    Transcript
-                                                </a>
-                                            {% endif %}
+                                                
+                                                {% if job.status == 'Completed' %}
+                                                    <a href="{{ url_for('view_analysis', job_id=job_id) }}" class="btn btn-sm btn-primary" title="View Analysis & Transcript">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            Download
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ url_for('download_file', filename=job.result.analysis_file) }}">
+                                                                    <i class="bi bi-file-earmark-text"></i> Analysis
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{ url_for('download_file', filename=job.result.transcript_file) }}">
+                                                                    <i class="bi bi-file-earmark"></i> Transcript
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                {% else %}
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled title="Analysis in progress">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </button>
+                                                {% endif %}
+                                            </div>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -64,9 +96,25 @@
                     </div>
                 {% else %}
                     <div class="alert alert-info">
-                        No analysis jobs have been run yet. <a href="{{ url_for('index') }}">Start a new analysis</a>.
+                        <h5 class="alert-heading">No Analysis Jobs Yet</h5>
+                        <p>You haven't analyzed any YouTube videos yet. <a href="{{ url_for('index') }}" class="alert-link">Start your first analysis</a> to begin extracting investment insights.</p>
                     </div>
                 {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3 class="card-title">About Analysis History</h3>
+            </div>
+            <div class="card-body">
+                <p>This page shows all the YouTube videos you've analyzed. From here, you can:</p>
+                <ul>
+                    <li><strong>View Analysis</strong> - See the analysis and transcript in a user-friendly format directly in your browser</li>
+                    <li><strong>Check Status</strong> - Monitor the progress of ongoing analyses</li>
+                    <li><strong>Download Results</strong> - Save transcript and analysis files to your computer</li>
+                </ul>
+                <p>All results are stored on your local machine in the <code>output</code> directory.</p>
             </div>
         </div>
     </div>
