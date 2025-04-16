@@ -6,12 +6,56 @@ db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
+    email = db.Column(db.String(100), unique=True, nullable=False)
     name = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Authentication data
+    auth_provider = db.Column(db.String(20))  # 'google', 'github', etc.
+    last_login = db.Column(db.DateTime)
+    
+    # User role and subscription
+    role = db.Column(db.String(20), default="user")  # 'user', 'admin'
     subscription_tier = db.Column(db.String(20), default="free")
+    subscription_id = db.Column(db.String(100))
+    subscription_expires = db.Column(db.DateTime)
+    
+    # Relationships
     analyses = db.relationship('Analysis', backref='user', lazy=True)
     prompt_templates = db.relationship('PromptTemplate', backref='user', lazy=True)
+    
+    @property
+    def is_admin(self):
+        return self.role == 'admin'
+    
+    @property
+    def is_premium(self):
+        return self.subscription_tier in ['premium', 'enterprise']
+    
+    @property
+    def monthly_quota(self):
+        """Return monthly analysis quota based on subscription tier."""
+        if self.subscription_tier == 'premium':
+            return 100
+        elif self.subscription_tier == 'enterprise':
+            return float('inf')  # unlimited
+        else:
+            return 5  # free tier
+    
+    def get_analyses_this_month(self):
+        """Get count of analyses done this month."""
+        start_of_month = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        return Analysis.query.filter_by(
+            user_id=self.id
+        ).filter(
+            Analysis.created_at >= start_of_month
+        ).count()
+    
+    def has_quota_available(self):
+        """Check if user has quota available for a new analysis."""
+        if self.subscription_tier == 'enterprise':
+            return True
+        return self.get_analyses_this_month() < self.monthly_quota
 
 class Analysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)

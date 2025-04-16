@@ -5,33 +5,93 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-10">
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h2 class="card-title mb-0">Available Prompt Templates</h2>
-                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-arrow-left"></i> Back to Home
-                </a>
+                <h2 class="card-title mb-0">Prompt Templates</h2>
+                <div>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('create_prompt') }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle"></i> Create Template
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm ms-2">
+                        <i class="bi bi-arrow-left"></i> Back to Home
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 <div class="alert alert-info">
-                    <p>These templates can be used to customize how the YouTube videos are analyzed. 
-                    Each template focuses on different aspects of the video content.</p>
+                    <p>Prompt templates customize how YouTube videos are analyzed. Each template focuses on different aspects of the video content.</p>
+                    <p class="mb-0">Use <code>{video_title}</code> and <code>{transcript}</code> as placeholders in your templates.</p>
                 </div>
+                
+                {% if not current_user.is_authenticated %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> <a href="{{ url_for('auth.login') }}">Sign in</a> to create and save your own custom templates.
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
-                <div class="accordion" id="promptTemplates">
-                    {% for template in templates %}
+        {% if user_templates %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Your Custom Templates</h3>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="userTemplates">
+                    {% for template in user_templates %}
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading{{ template.id }}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ template.id }}" aria-expanded="false" aria-controls="collapse{{ template.id }}">
+                        <h2 class="accordion-header" id="userHeading{{ template.id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userCollapse{{ template.id }}" aria-expanded="false" aria-controls="userCollapse{{ template.id }}">
+                                <strong>{{ template.name }}</strong>
+                                <span class="badge bg-primary ms-2">Custom</span>
+                            </button>
+                        </h2>
+                        <div id="userCollapse{{ template.id }}" class="accordion-collapse collapse" aria-labelledby="userHeading{{ template.id }}" data-bs-parent="#userTemplates">
+                            <div class="accordion-body">
+                                <pre class="bg-light p-3 rounded"><code>{{ template.prompt_text }}</code></pre>
+                                <div class="d-flex mt-2">
+                                    <a href="{{ url_for('index') }}?template_id={{ template.id }}" class="btn btn-sm btn-primary">
+                                        Use This Template
+                                    </a>
+                                    <a href="{{ url_for('view_prompt', template_id=template.id) }}" class="btn btn-sm btn-outline-secondary ms-2">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Default Templates</h3>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="defaultTemplates">
+                    {% for template in default_templates %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="defaultHeading{{ template.id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#defaultCollapse{{ template.id }}" aria-expanded="false" aria-controls="defaultCollapse{{ template.id }}">
                                 <strong>{{ template.name }}</strong>
                             </button>
                         </h2>
-                        <div id="collapse{{ template.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ template.id }}" data-bs-parent="#promptTemplates">
+                        <div id="defaultCollapse{{ template.id }}" class="accordion-collapse collapse" aria-labelledby="defaultHeading{{ template.id }}" data-bs-parent="#defaultTemplates">
                             <div class="accordion-body">
                                 <pre class="bg-light p-3 rounded"><code>{{ template.prompt_text }}</code></pre>
-                                <a href="{{ url_for('index') }}?template_id={{ template.id }}" class="btn btn-sm btn-primary mt-2">
-                                    Use This Template
-                                </a>
+                                <div class="d-flex mt-2">
+                                    <a href="{{ url_for('index') }}?template_id={{ template.id }}" class="btn btn-sm btn-primary">
+                                        Use This Template
+                                    </a>
+                                    <a href="{{ url_for('view_prompt', template_id=template.id) }}" class="btn btn-sm btn-outline-secondary ms-2">
+                                        View Details
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

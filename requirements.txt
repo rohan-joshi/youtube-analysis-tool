@@ -8,5 +8,9 @@ tqdm
 flask
 flask-wtf
 flask-sqlalchemy
+flask-login
+flask-dance
 markdown2
 anthropic>=0.18.0
+blinker
+requests-oauthlib

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Create Prompt Template{% endblock %}
+
+{% block head %}
+<style>
+    .template-form .form-label {
+        font-weight: 600;
+    }
+    .helper-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+    .placeholders {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="card-title mb-0">Create Custom Prompt Template</h2>
+                <a href="{{ url_for('prompts') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Back to Templates
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p>Create your own custom prompt template to analyze YouTube videos according to your specific needs.</p>
+                    <p class="mb-0">Your template will be saved to your account and available for future analyses.</p>
+                </div>
+                
+                <form method="POST" class="template-form">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="helper-text">A descriptive name for your template (e.g., "Financial Analysis with Risk Assessment")</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.prompt_text.label(class="form-label") }}
+                        {{ form.prompt_text(class="form-control", rows=15) }}
+                        {% if form.prompt_text.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.prompt_text.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="placeholders">
+                            <h5>Available Placeholders:</h5>
+                            <ul>
+                                <li><code>{video_title}</code> - The title of the YouTube video</li>
+                                <li><code>{transcript}</code> - The full transcript of the video</li>
+                            </ul>
+                            
+                            <h6>Example Format:</h6>
+                            <pre class="bg-light p-2 rounded"><code>The following is a transcript from a YouTube video titled "{video_title}".
+
+Transcript:
+{transcript}
+
+Please provide:
+1. A summary of the main points
+2. Key insights related to [your specific topic]
+3. Any recommendations or conclusions
+
+Please format your response with clear headings and bullet points.</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

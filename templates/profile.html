@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Profile Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="avatar-placeholder bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        {{ user.name[0] | upper }}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h5>{{ user.name }}</h5>
+                    <p class="text-muted">{{ user.email }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <p><strong>Member since:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
+                    <p><strong>Plan:</strong> <span class="badge {{ 'bg-success' if user.is_premium else 'bg-secondary' }}">{{ user.subscription_tier | title }}</span></p>
+                </div>
+                
+                {% if not user.is_premium %}
+                <div class="text-center mt-4">
+                    <a href="#" class="btn btn-primary">Upgrade to Premium</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Usage Statistics</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h5 class="mb-1">Analysis Usage</h5>
+                    <p class="text-muted mb-2">{{ user.get_analyses_this_month() }} of {{ user.monthly_quota }} used this month</p>
+                    
+                    <div class="progress" style="height: 10px;">
+                        {% set usage_percent = (user.get_analyses_this_month() / user.monthly_quota * 100) | int %}
+                        <div class="progress-bar {{ 'bg-warning' if usage_percent > 75 else 'bg-success' }}" role="progressbar" style="width: {{ usage_percent if usage_percent <= 100 else 100 }}%" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    
+                    {% if usage_percent > 75 and not user.is_premium %}
+                    <div class="mt-2 text-warning">
+                        <small><i class="bi bi-exclamation-triangle"></i> You're approaching your monthly limit. Consider upgrading to Premium.</small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <h5 class="mb-1">Total Analyses</h5>
+                    <p class="mb-0">{{ analyses | length }} analyses performed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">Your Analyses</h4>
+                <a href="{{ url_for('index') }}" class="btn btn-sm btn-primary">New Analysis</a>
+            </div>
+            <div class="card-body">
+                {% if analyses %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Video</th>
+                                <th>Model</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for analysis in analyses %}
+                            <tr>
+                                <td>{{ analysis.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <a href="{{ analysis.video_url }}" target="_blank">
+                                        {{ analysis.video_title | truncate(40) }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ analysis.model.split('-')[0] }}</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('view_file', filename=analysis.analysis_file.split('/')[-1]) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        <a href="{{ url_for('download_file', filename=analysis.analysis_file.split('/')[-1]) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p>You haven't performed any analyses yet.</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary mt-2">Analyze Your First Video</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Your Custom Templates</h4>
+            </div>
+            <div class="card-body">
+                {% set custom_templates = user.prompt_templates %}
+                {% if custom_templates %}
+                <div class="list-group">
+                    {% for template in custom_templates %}
+                    <a href="{{ url_for('view_prompt', template_id=template.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        {{ template.name }}
+                        <span class="badge bg-primary rounded-pill">{{ template.created_at.strftime('%Y-%m-%d') }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p>You haven't created any custom prompt templates yet.</p>
+                    <p class="mb-0">Custom templates allow you to customize how videos are analyzed.</p>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('prompts') }}" class="btn btn-outline-primary">Browse Templates</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

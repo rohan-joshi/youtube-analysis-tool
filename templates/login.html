@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block head %}
+<style>
+    .login-container {
+        max-width: 500px;
+        margin: 2rem auto;
+    }
+    .oauth-btn {
+        margin-bottom: 1rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        padding: 0.75rem 1rem;
+    }
+    .oauth-btn i {
+        margin-right: 10px;
+        font-size: 1.5rem;
+    }
+    .google-btn {
+        background-color: #ffffff;
+        border: 1px solid #dadce0;
+        color: #3c4043;
+    }
+    .google-btn:hover {
+        background-color: #f8f9fa;
+    }
+    .github-btn {
+        background-color: #24292e;
+        color: #ffffff;
+    }
+    .github-btn:hover {
+        background-color: #2f363d;
+        color: #ffffff;
+    }
+    .login-section {
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background-color: #fff;
+    }
+    .login-heading {
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-weight: 600;
+    }
+    .privacy-notice {
+        margin-top: 1.5rem;
+        font-size: 0.875rem;
+        color: #6c757d;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-section">
+        <h2 class="login-heading">Sign in to YouTube Analysis Tool</h2>
+        
+        <div class="oauth-buttons">
+            <a href="{{ url_for('google.login') }}" class="btn oauth-btn google-btn">
+                <i class="bi bi-google"></i> Sign in with Google
+            </a>
+            
+            <a href="{{ url_for('github.login') }}" class="btn oauth-btn github-btn">
+                <i class="bi bi-github"></i> Sign in with GitHub
+            </a>
+        </div>
+        
+        <div class="privacy-notice">
+            <p>By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+            <p>We only access your basic profile information and email address.</p>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Why Sign In?</h5>
+            <ul class="mb-0">
+                <li>Save your analysis history across devices</li>
+                <li>Create and save custom prompt templates</li>
+                <li>Access premium features with a subscription</li>
+                <li>Increased monthly analysis quota</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
